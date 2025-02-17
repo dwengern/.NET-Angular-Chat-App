@@ -9,6 +9,8 @@ import { APIResponse } from '../models/api-response';
 export class AuthServiceService {
   private baseUrl = "http://localhost:5000/api/account";
 
+  private token = "token";
+
   private httpClient = inject(HttpClient);
 
   register(data: FormData): Observable<APIResponse<string>> {
@@ -16,8 +18,21 @@ export class AuthServiceService {
       data
     ).pipe(
       tap((response) => {
-        localStorage.setItem("token", response.data);
+        localStorage.setItem(this.token, response.data);
       })
     );
+  }
+
+  login(email:string, password:string): Observable<APIResponse<string>> {
+    return this.httpClient.post<APIResponse<string>>(`${this.baseUrl}/login`,{
+      email,
+      password
+    }).pipe(tap((response)=>{
+        if(response.isSuccess){
+        localStorage.setItem(this.token, response.data);
+      }
+
+      return response;
+    }));
   }
 }
